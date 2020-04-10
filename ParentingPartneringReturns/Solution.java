@@ -18,7 +18,8 @@ public class Solution {
             if (obj == this) { return true; }
             if (obj == null || obj.getClass() != this.getClass()) { return false; }
             Activity actividad = (Activity) obj;
-            return Math.max(this.ini, actividad.ini) < Math.min(this.fin, actividad.fin);//this.ini < actividad.fin && this.fin > actividad.ini;
+            // another option: Math.max(this.ini, actividad.ini) < Math.min(this.fin, actividad.fin)
+            return this.ini < actividad.fin && this.fin > actividad.ini;
         }
 
         @Override
@@ -62,12 +63,10 @@ public class Solution {
                     }
                 }
                 listCasesResults.add(outputString);
-
             }
             for (String c: listCasesResults){
                 System.out.println(c);
             }
-
             myReader.close();
 
         } catch (Exception e) {
