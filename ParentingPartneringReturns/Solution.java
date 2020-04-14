@@ -4,13 +4,16 @@ import java.io.*;
 import java.util.*;
 
 public class Solution {
-    private static class Activity {
+    private static class Activity implements Comparable{
         private Integer ini;
         private Integer fin;
+        private Integer order;
 
-        public Activity(Integer ini, Integer fin) {
+
+        public Activity(Integer ini, Integer fin, Integer order) {
             this.ini = ini;
             this.fin = fin;
+            this.order = order;
         }
 
         @Override
@@ -24,7 +27,15 @@ public class Solution {
 
         @Override
         public String toString() {
-            return "Inicio: "+this.ini+" , Fin: "+this.fin;
+            return "Inicio: "+this.ini+" , Fin: "+this.fin+" , Orden: "+this.order;
+        }
+
+
+        @Override
+        public int compareTo(Object obj) {
+            if (obj == this) { return 0; }
+            Activity otherActivity = (Activity) obj;
+            return (this.ini < otherActivity.ini ) ? -1: (this.ini > otherActivity.ini) ? 1:0 ;
         }
     }
 
@@ -42,28 +53,39 @@ public class Solution {
 
                 List<Activity> listActividadesJ = new ArrayList<>();
                 List<Activity> listActividadesC = new ArrayList<>();
-
                 String outputString = "Case #"+(c+1)+": ";
-                for (int iAct = 0; iAct<numActividades; iAct++){
+                List<Activity> listActivities = new ArrayList<>();
+                for (int iAct = 0; iAct<numActividades; iAct++) {
                     data = myReader.nextLine();
                     String[] numerosFila = data.split("\\s");
-                    Activity nextAct = new Activity(Integer.parseInt(numerosFila[0].trim()), Integer.parseInt(numerosFila[1].trim()));
+                    Activity nextAct = new Activity(Integer.parseInt(numerosFila[0].trim()), Integer.parseInt(numerosFila[1].trim()), iAct);
+                    listActivities.add(nextAct);
+                }
+                Collections.sort(listActivities);
+                StringBuilder result = new StringBuilder("");
+                result.setLength(numActividades);
+                for (Activity nextAct: listActivities){
                     if (!listActividadesC.contains(nextAct) || listActividadesC.isEmpty()) {
                         listActividadesC.add(nextAct);
-                        outputString = outputString.concat("C");
+                        result.setCharAt(nextAct.order, 'C');
                     } else if (!listActividadesJ.contains(nextAct) || listActividadesJ.isEmpty()){
                         listActividadesJ.add(nextAct);
-                        outputString = outputString.concat("J");
+                        result.setCharAt(nextAct.order, 'J');
                     } else {
-                        outputString = "Case #"+(c+1)+": IMPOSSIBLE";
-                        for (int i=iAct; i< numActividades-iAct; i++){
-                            data = myReader.nextLine();
-                        }
+                        result.setLength(0);
                         break;
                     }
                 }
+
+                if (result.length() > 0) {
+                    outputString = outputString.concat(result.toString());
+                }else{
+                    outputString = "Case #"+(c+1)+": "+"IMPOSSIBLE";
+                }
                 listCasesResults.add(outputString);
+
             }
+            // Recorremos las listas de actividades
             for (String c: listCasesResults){
                 System.out.println(c);
             }
