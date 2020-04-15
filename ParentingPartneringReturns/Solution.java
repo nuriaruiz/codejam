@@ -2,6 +2,7 @@ package ParentingPartneringReturns;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Solution {
     private static class Activity implements Comparable{
@@ -9,11 +10,14 @@ public class Solution {
         private Integer fin;
         private Integer order;
 
-
         public Activity(Integer ini, Integer fin, Integer order) {
             this.ini = ini;
             this.fin = fin;
             this.order = order;
+        }
+
+        public boolean intersects (Activity act){
+            return this.ini < act.fin && this.fin > act.ini;
         }
 
         @Override
@@ -21,8 +25,7 @@ public class Solution {
             if (obj == this) { return true; }
             if (obj == null || obj.getClass() != this.getClass()) { return false; }
             Activity actividad = (Activity) obj;
-            // another option: Math.max(this.ini, actividad.ini) < Math.min(this.fin, actividad.fin)
-            return this.ini < actividad.fin && this.fin > actividad.ini;
+            return this.ini.equals(actividad.ini)  && this.fin.equals(actividad.fin);
         }
 
         @Override
@@ -51,8 +54,6 @@ public class Solution {
                 data = myReader.nextLine();
                 Integer numActividades = Integer.parseInt(data);
 
-                List<Activity> listActividadesJ = new ArrayList<>();
-                List<Activity> listActividadesC = new ArrayList<>();
                 String outputString = "Case #"+(c+1)+": ";
                 List<Activity> listActivities = new ArrayList<>();
                 for (int iAct = 0; iAct<numActividades; iAct++) {
@@ -64,14 +65,20 @@ public class Solution {
                 Collections.sort(listActivities);
                 StringBuilder result = new StringBuilder("");
                 result.setLength(numActividades);
+                Optional<Activity> lastActC = Optional.empty();
+                Optional<Activity> lastActJ = Optional.empty();
                 for (Activity nextAct: listActivities){
-                    if (!listActividadesC.contains(nextAct) || listActividadesC.isEmpty()) {
-                        listActividadesC.add(nextAct);
+                    if (!lastActC.isPresent() || (lastActC.isPresent() && !lastActC.get().intersects(nextAct))){
+                        // se puede asignar actividad a C
+                        lastActC = Optional.of(nextAct);
                         result.setCharAt(nextAct.order, 'C');
-                    } else if (!listActividadesJ.contains(nextAct) || listActividadesJ.isEmpty()){
-                        listActividadesJ.add(nextAct);
+                    } else if (!lastActJ.isPresent() || (lastActJ.isPresent() && !lastActJ.get().intersects(nextAct))){
+                        // se puede asignar a J
                         result.setCharAt(nextAct.order, 'J');
+                        lastActJ = Optional.of(nextAct);
+
                     } else {
+                        // o no hay actividad anterior o intersecta
                         result.setLength(0);
                         break;
                     }
